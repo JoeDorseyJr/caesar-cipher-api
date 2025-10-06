@@ -53,6 +53,22 @@ cd api
 bun install
 ```
 
+### Database Setup
+
+Run migrations to create the database schema:
+
+```shell
+bun run migrate
+```
+
+Seed test credentials for local development:
+
+```shell
+bun run seed:local
+```
+
+**Important**: Save the API token displayed by the seed script. You'll need it to authenticate requests.
+
 ### Run the server
 
 **Development mode (with hot reload):**
@@ -79,6 +95,50 @@ Override the port if needed:
 ```shell
 PORT=4000 bun run dev
 ```
+
+---
+
+## Authentication
+
+All cipher endpoints (POST requests) require authentication using Bearer tokens. Public endpoints (`/health` and `/info`) do not require authentication.
+
+### Getting an API Token
+
+Run the seed script to generate a test token:
+
+```shell
+cd api
+bun run seed:local
+```
+
+The script will output an API token. Save this token for making authenticated requests.
+
+### Using the Token
+
+Include the token in the `Authorization` header:
+
+```bash
+curl -X POST http://localhost:3000/encrypt \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -d '{"text": "Hello, World!", "shift": 3}'
+```
+
+### Protected Endpoints
+
+The following endpoints require authentication:
+- POST `/encrypt`
+- POST `/decrypt`
+- POST `/encode`
+- POST `/rot13`
+- POST `/bruteforce`
+- POST `/auto-decrypt`
+
+### Public Endpoints
+
+The following endpoints are public (no authentication required):
+- GET `/health`
+- GET `/info`
 
 ---
 
@@ -120,6 +180,7 @@ Encrypt text with a specified shift value (0-25).
 ```bash
 curl -X POST http://localhost:3000/encrypt \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Hello, World!", "shift": 3}'
 ```
 
@@ -144,6 +205,7 @@ Decrypt text with a specified shift value (0-25).
 ```bash
 curl -X POST http://localhost:3000/decrypt \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Khoor, Zruog!", "shift": 3}'
 ```
 
@@ -181,11 +243,13 @@ Quick encryption with default shift of 3. Optionally accepts custom shift value.
 # Using default shift (3)
 curl -X POST http://localhost:3000/encode \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Attack at dawn"}'
 
 # Using custom shift
 curl -X POST http://localhost:3000/encode \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Attack at dawn", "shift": 5}'
 ```
 
@@ -210,11 +274,13 @@ Apply ROT13 encoding (fixed shift of 13). ROT13 is symmetric - applying it twice
 ```bash
 curl -X POST http://localhost:3000/rot13 \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Hello, World!"}'
 
 # Verify symmetry - apply ROT13 twice
 curl -X POST http://localhost:3000/rot13 \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Uryyb, Jbeyq!"}'
 ```
 
@@ -248,6 +314,7 @@ Show all possible decryptions (shifts 0-25) for given ciphertext.
 ```bash
 curl -X POST http://localhost:3000/bruteforce \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Khoor, Zruog!"}'
 ```
 
@@ -289,6 +356,7 @@ For ambiguous input, includes `candidates` array:
 ```bash
 curl -X POST http://localhost:3000/auto-decrypt \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"text": "Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj"}'
 ```
 
@@ -351,24 +419,38 @@ api/
 │   │   └── info.ts          # /info endpoint ✅
 │   │
 │   ├── middleware/
+│   │   ├── auth.ts          # Bearer token authentication ✅
+│   │   ├── errorHandler.ts  # Structured error handling ✅
 │   │   └── logging.ts       # Request logging middleware ✅
+│   │
+│   ├── repositories/
+│   │   └── apiKeyRepository.ts  # API key database access ✅
 │   │
 │   ├── utils/
 │   │   ├── caesar.ts        # Cipher logic ✅
-│   │   └── logger.ts        # Structured logging utility ✅
+│   │   ├── logger.ts        # Structured logging utility ✅
+│   │   └── validation.ts    # Request validation helpers ✅
 │   │
+│   ├── db.ts                # Database connection pool ✅
 │   ├── config.ts            # Environment configuration ✅
 │   ├── app.ts               # Hono app setup and route mounting ✅
 │   └── server.ts            # Server bootstrap ✅
 │
 ├── db/
-│   ├── migrations/          # Database migrations 🚧
+│   ├── migrations/          # Database migrations ✅
 │   ├── migrate.ts           # Migration runner ✅
 │   └── seed.ts              # Database seeding script ✅
 │
+├── scripts/
+│   ├── benchmark.ts         # Performance benchmarks ✅
+│   ├── generate-openapi.ts  # OpenAPI spec generator ✅
+│   └── ci.sh                # CI validation script ✅
+│
 ├── dist/                    # Production build output
+├── openapi.json             # OpenAPI 3.0 specification ✅
 ├── package.json
 ├── tsconfig.json
+├── biome.json               # Linter configuration ✅
 ├── bun.lockb
 └── .env.local               # Local environment variables (not tracked)
 ```
@@ -376,7 +458,6 @@ api/
 **Legend:**
 
 * ✅ Implemented
-* 🚧 Coming in future phases
 
 ---
 
