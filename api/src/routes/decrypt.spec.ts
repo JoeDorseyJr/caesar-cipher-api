@@ -1,12 +1,23 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { app } from '../app';
+import { setupTestAuth, cleanupTestAuth, getAuthHeader } from '../test-helpers/auth';
+
+let authToken: string;
 
 describe('POST /decrypt', () => {
+  beforeAll(async () => {
+    authToken = await setupTestAuth();
+  });
+
+  afterAll(async () => {
+    await cleanupTestAuth();
+  });
+
   describe('successful decryption', () => {
     it('decrypts text with valid shift', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Khoor', shift: 3 }),
       });
 
@@ -20,7 +31,7 @@ describe('POST /decrypt', () => {
     it('handles shift of 0', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Test', shift: 0 }),
       });
 
@@ -34,7 +45,7 @@ describe('POST /decrypt', () => {
     it('handles shift of 25', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'ZAB', shift: 25 }),
       });
 
@@ -48,7 +59,7 @@ describe('POST /decrypt', () => {
     it('preserves case and punctuation', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Mjqqt, Btwqi!', shift: 5 }),
       });
 
@@ -66,7 +77,7 @@ describe('POST /decrypt', () => {
       // Encrypt
       const encryptReq = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: original, shift }),
       });
       const encryptRes = await app.fetch(encryptReq);
@@ -75,7 +86,7 @@ describe('POST /decrypt', () => {
       // Decrypt
       const decryptReq = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: encrypted, shift }),
       });
       const decryptRes = await app.fetch(decryptReq);
@@ -89,7 +100,7 @@ describe('POST /decrypt', () => {
     it('returns 400 for missing text', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ shift: 3 }),
       });
 
@@ -100,7 +111,7 @@ describe('POST /decrypt', () => {
     it('returns 400 for missing shift', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello' }),
       });
 
@@ -111,7 +122,7 @@ describe('POST /decrypt', () => {
     it('returns 400 for shift below 0 (CC-DEC-003)', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello', shift: -1 }),
       });
 
@@ -122,7 +133,7 @@ describe('POST /decrypt', () => {
     it('returns 400 for shift above 25 (CC-DEC-003)', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello', shift: 26 }),
       });
 
@@ -133,7 +144,7 @@ describe('POST /decrypt', () => {
     it('returns 400 for non-numeric shift', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello', shift: 'thirteen' }),
       });
 
@@ -144,7 +155,7 @@ describe('POST /decrypt', () => {
     it('returns 400 for non-string text', async () => {
       const req = new Request('http://localhost/decrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 123, shift: 3 }),
       });
 

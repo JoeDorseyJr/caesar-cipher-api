@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { loggingMiddleware } from './middleware/logging';
+import { authMiddleware } from './middleware/auth';
 import health from './routes/health';
 import encrypt from './routes/encrypt';
 import decrypt from './routes/decrypt';
@@ -14,9 +15,18 @@ export const app = new Hono();
 // Apply logging middleware to all routes
 app.use('*', loggingMiddleware);
 
-// Mount routes
+// Public routes (no auth required)
 app.route('/health', health);
 app.route('/info', info);
+
+// Protected routes (auth required)
+app.use('/encrypt', authMiddleware);
+app.use('/decrypt', authMiddleware);
+app.use('/encode', authMiddleware);
+app.use('/rot13', authMiddleware);
+app.use('/bruteforce', authMiddleware);
+app.use('/auto-decrypt', authMiddleware);
+
 app.route('/encrypt', encrypt);
 app.route('/decrypt', decrypt);
 app.route('/encode', encode);

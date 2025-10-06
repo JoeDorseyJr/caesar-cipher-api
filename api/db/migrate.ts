@@ -7,15 +7,18 @@
 
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
+import { Pool } from 'pg';
 
 async function runMigrations() {
   console.log('🔄 Running database migrations...');
   
   const { config } = await import('../src/config');
   
+  const pool = new Pool({
+    connectionString: config.DATABASE_URL,
+  });
+  
   try {
-    // Import pg for database connection
-    // Note: pg package will be installed when we implement Phase 4
     console.log(`📊 Connecting to database: ${config.DATABASE_URL.replace(/:[^:]*@/, ':****@')}`);
     
     const migrationsDir = join(import.meta.dir, 'migrations');
@@ -25,6 +28,7 @@ async function runMigrations() {
     
     if (files.length === 0) {
       console.log('ℹ️  No migration files found');
+      await pool.end();
       return;
     }
     
@@ -35,16 +39,18 @@ async function runMigrations() {
       const sql = readFileSync(filePath, 'utf-8');
       console.log(`  ▶️  Executing: ${file}`);
       
-      // TODO: Execute SQL when pg client is available in Phase 4
-      // await client.query(sql);
+      await pool.query(sql);
       console.log(`  ✅  Completed: ${file}`);
     }
     
     console.log('✨ Migrations completed successfully!');
   } catch (error) {
     console.error('❌ Migration failed:', error);
+    await pool.end();
     process.exit(1);
   }
+  
+  await pool.end();
 }
 
 runMigrations();

@@ -1,12 +1,26 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { app } from '../app';
+import { setupTestAuth, cleanupTestAuth, getAuthHeader } from '../test-helpers/auth';
+
+let authToken: string;
 
 describe('POST /encrypt', () => {
+  beforeAll(async () => {
+    authToken = await setupTestAuth();
+  });
+
+  afterAll(async () => {
+    await cleanupTestAuth();
+  });
+
   describe('successful encryption', () => {
     it('encrypts text with valid shift', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeader(authToken),
+        },
         body: JSON.stringify({ text: 'Hello', shift: 3 }),
       });
 
@@ -20,7 +34,10 @@ describe('POST /encrypt', () => {
     it('handles shift of 0', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...getAuthHeader(authToken),
+        },
         body: JSON.stringify({ text: 'Test', shift: 0 }),
       });
 
@@ -34,7 +51,7 @@ describe('POST /encrypt', () => {
     it('handles shift of 25', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'ABC', shift: 25 }),
       });
 
@@ -48,7 +65,7 @@ describe('POST /encrypt', () => {
     it('preserves case and punctuation', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello, World!', shift: 5 }),
       });
 
@@ -64,7 +81,7 @@ describe('POST /encrypt', () => {
     it('returns 400 for missing text', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ shift: 3 }),
       });
 
@@ -75,7 +92,7 @@ describe('POST /encrypt', () => {
     it('returns 400 for missing shift', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello' }),
       });
 
@@ -86,7 +103,7 @@ describe('POST /encrypt', () => {
     it('returns 400 for shift below 0 (CC-ENC-002)', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello', shift: -1 }),
       });
 
@@ -97,7 +114,7 @@ describe('POST /encrypt', () => {
     it('returns 400 for shift above 25 (CC-ENC-002)', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello', shift: 26 }),
       });
 
@@ -108,7 +125,7 @@ describe('POST /encrypt', () => {
     it('returns 400 for non-numeric shift', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 'Hello', shift: 'three' }),
       });
 
@@ -119,7 +136,7 @@ describe('POST /encrypt', () => {
     it('returns 400 for non-string text', async () => {
       const req = new Request('http://localhost/encrypt', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeader(authToken) },
         body: JSON.stringify({ text: 123, shift: 3 }),
       });
 
