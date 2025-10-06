@@ -7,7 +7,7 @@ This project delivers a Bun + Hono HTTP API that performs Caesar cipher transfor
 - Provide stable REST endpoints for encrypt, decrypt, ROT13, encode (default shift), brute-force, auto-decrypt, and health/info checks.
 - Ensure shift logic preserves character case, ignores non-alphabetic characters, and supports the full 0–25 rotation range.
 - Enforce authenticated access using a Postgres-backed credential store suitable for local testing.
-- Ship production-ready build artifacts and documentation so contributors can run, test, and deploy the API easily.
+- Produce deployable build artifacts (`dist/`) and setup documentation so contributors can run `bun build` and launch the bundle without additional configuration.
 
 ## Assumptions & Constraints
 - Runtime environment uses Bun ≥ 1.0 with TypeScript and Hono.
@@ -73,6 +73,7 @@ As an API integrator, I want to authenticate each request so that only authorize
 - FR-004: Log each request with route name, execution time, and status for observability.
 - FR-005: Provide Bun scripts for `dev`, `test`, `build`, and `seed:local` workflows referenced in README.
 - FR-006: Protect routes behind authentication middleware that checks Postgres-backed credentials.
+- FR-007: Ensure `bun build src/server.ts --outdir dist` produces runnable artifacts documented in README, enabling contributors to start the built server manually (e.g., `bun run dist/server.js`).
 
 ## Technical Requirements
 - TR-001: Use TypeScript with `strict` compiler option enabled; disallow implicit `any`.

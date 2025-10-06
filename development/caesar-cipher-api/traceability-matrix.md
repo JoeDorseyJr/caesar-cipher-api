@@ -1,48 +1,85 @@
 # Traceability Matrix – Caesar Cipher API
 
-| Requirement ID | Summary | Validation Path (Usage) | Design Coverage | Tasks Coverage | Notes / Gaps |
+## Forward Traceability (Requirements → Design → Tasks)
+| Requirement ID | Summary | Validation Path (Usage) | Design Coverage | Tasks Coverage | Notes |
 | --- | --- | --- | --- | --- | --- |
-| OBJ-1 | Provide REST endpoints for cipher operations | Manual `curl` and integration tests hitting each endpoint | Design §System Architecture Overview; §Routing & Request Lifecycle | Phase 2 core routes; Phase 3 advanced endpoints | Covered via detailed route tasks |
-| OBJ-2 | Preserve shift behavior across full range | Unit tests exercising cipher utilities with edge cases | Design §Cipher Logic Module | Phase 2 "Develop core cipher utilities" | Covered |
-| OBJ-3 | Enforce authenticated access with Postgres | End user authenticates via seeded token to call endpoints | Design §Request Flow with Authentication; §Authentication & Postgres Integration | Phase 4 auth tasks | Covered |
-| OBJ-4 | Ship production build artifacts & docs | Run `bun build` to create dist; deliver docs enabling setup | Design §Build & Deployment Preparation; §API Documentation Strategy | **No explicit task for bundling output**; doc tasks partially cover | Add task to configure/verify `bun build` and artifact output |
-| CC-ENC-001 | `/encrypt` accepts `{text, shift}` | Integration test + `curl` POST | Design §Routing & Request Lifecycle | Phase 2 `/encrypt` route task | Covered |
-| CC-ENC-002 | Reject invalid shift | Negative integration test using Hono client | Design §Routing & Request Lifecycle | Phase 2 `/encrypt` route task | Covered |
-| CC-ENC-003 | Respond with encrypted payload preserving case | Unit tests on utilities + integration | Design §Cipher Logic Module | Phase 2 utilities task; `/encrypt` route task | Covered |
-| CC-DEC-001 | `/decrypt` endpoint | Integration test + manual `curl` | Design §Routing & Request Lifecycle | Phase 2 `/decrypt` task | Covered |
-| CC-DEC-002 | Round-trip matches plaintext | Unit tests in `caesar.spec.ts` | Design §Cipher Logic Module | Phase 2 utilities task | Covered |
-| CC-DEC-003 | Reject shift outside 0–25 | Integration test expecting 400 | Design §Routing & Request Lifecycle | Phase 2 `/decrypt` task | Covered |
-| CC-ENCDEF-001 | `/encode` defaults shift 3 | Integration test + manual `curl` without shift | Design §Cipher Logic Module | Phase 2 `/encode` task | Covered |
-| CC-ENCDEF-002 | `/encode` allows override | Integration test with custom shift | Design §Cipher Logic Module | Phase 2 `/encode` task | Covered |
-| CC-ROT13-001 | `/rot13` applies shift 13 | Integration test verifying constant shift | Design §Cipher Logic Module | Phase 2 `/rot13` task | Covered |
-| CC-ROT13-002 | Response key `rot13` | Integration test on payload keys | Design §Cipher Logic Module | Phase 2 `/rot13` task | Covered |
-| CC-BRUTE-001 | `/bruteforce` accepts `{text}` | Integration test + manual `curl` | Design §Cipher Logic Module | Phase 3 `/bruteforce` task | Covered |
-| CC-BRUTE-002 | Return keys "0"–"25" | Unit test verifying map keys | Design §Cipher Logic Module | Phase 3 `/bruteforce` task | Covered |
-| CC-BRUTE-003 | Include original text at shift 0 | Integration test verifying key "0" | Design §Cipher Logic Module | Phase 3 `/bruteforce` task | Covered |
-| CC-AUTO-001 | `/auto-decrypt` endpoint | Integration test hitting route | Design §Cipher Logic Module | Phase 3 `autoDecrypt` task | Covered |
-| CC-AUTO-002 | Frequency analysis returns decrypted result | Unit test with known ciphertext | Design §Cipher Logic Module | Phase 3 `autoDecrypt` task | Covered |
-| CC-AUTO-003 | Include candidates array on uncertainty | Integration test verifying fallback data | Design §Cipher Logic Module | Phase 3 `autoDecrypt` task | Covered |
-| CC-HEALTH-001 | `/health` returns `{status:"ok"}` | `curl /health` invocation | Design §System Architecture Overview; §Logging & Observability | Phase 1 health route | Covered |
-| CC-HEALTH-002 | Respond within 50 ms | Performance benchmark with latency check | Design §Testing Strategy | Phase 3 performance benchmark task | Ensure benchmark explicitly records latency metric |
-| CC-INFO-001 | `/info` returns metadata | Integration test + `curl /info` | Design §API Documentation Strategy | Phase 3 `/info` task | Covered |
-| CC-INFO-002 | Version sourced from package metadata | Unit test referencing `package.json` | Design §API Documentation Strategy | Phase 3 `/info` task | Covered |
-| CC-AUTH-001 | Require auth header for mutating endpoints | Manual `curl` without token returns 401 | Design §Request Flow with Authentication | Phase 4 auth middleware task | Covered |
-| CC-AUTH-002 | Validate token via Postgres table | Integration/unit tests hitting DB | Design §Authentication & Postgres Integration | Phase 4 migrations & connector task | Covered |
-| CC-AUTH-003 | Provide local seed script | Run `bun run seed:local` to generate token | Design §Authentication & Postgres Integration | Phase 4 seed script task | Covered |
-| FR-001 | Core cipher utilities | Unit tests, used by endpoints | Design §Cipher Logic Module | Phase 2 utilities task | Covered |
-| FR-002 | Route modules per endpoint | Manual inspection of `api/src/routes`; integration tests | Design §Routing & Request Lifecycle | Phases 2 & 3 route tasks | Covered |
-| FR-003 | Shared validation middleware | Tests verifying error responses | Design §Routing & Request Lifecycle | Phase 2 route task; Phase 5 error handler task | Covered |
-| FR-004 | Structured logging | Inspect logs during `curl` call | Design §Logging & Observability | Phase 1 logging task | Covered |
-| FR-005 | Bun scripts `dev`, `test`, `build`, `seed:local` | Run scripts end-to-end | Design §Build & Deployment Preparation | Partially in tasks (dev/test, seed). **Need explicit task for `bun build` script** | Add dedicated task to configure and verify build script |
-| FR-006 | Auth middleware protecting routes | `curl` with/without token; integration tests | Design §Request Flow with Authentication | Phase 4 auth middleware task | Covered |
-| TR-001 | Strict TypeScript | `bun test` compile step fails on implicit any | Design §Implementation Phase 1 | Phase 1 setup task | Covered |
-| TR-002 | Bundle server via `bun build` | Run `bun build` to produce `dist` artifacts | Design §Build & Deployment Preparation | **No explicit task** | Add Phase 1/5 task ensuring bundle validated |
-| TR-003 | Default port 3000 with override | Start server with default & custom `PORT` | Design §Configuration & Environment Management | Phase 1 config task | Include validation step for PORT override |
-| TR-004 | Automated tests + ≥90% coverage | Review coverage report after tests | Design §Testing Strategy | Phase 2 utilities task; Ongoing quality gate | Covered |
-| TR-005 | Provision local Postgres | Run Docker compose, connect | Design §Authentication & Postgres Integration | Phase 1 provisioning task | Covered |
-| TR-006 | DB migrations & seed tooling | Execute `bun run migrate` / `seed:local` | Design §Authentication & Postgres Integration | Phase 4 migrations/seed tasks | Covered |
-| TR-007 | Document environment variables | README + `.env.example` instructions | Design §Configuration & Environment Management; §API Documentation Strategy | Phase 1 config task; Phase 2 README task | Ensure README documents new vars as they are added |
-| NFR-001 | Response <100 ms for 1k-char payload | Performance benchmark run | Design §Testing Strategy | Phase 3 performance benchmark | Confirm benchmark includes payload-size scenario |
-| NFR-002 | Handle 50 concurrent requests | Load test scenario with concurrency 50 | Design §Testing Strategy | Phase 3 performance benchmark | Expand benchmark task to include concurrency measurement |
-| NFR-003 | Error responses provide `code`, `message` | Manual invalid request + integration test | Design §Routing & Request Lifecycle; §Logging & Observability | Phase 5 error handler task | Covered |
-| NFR-004 | Auth adds ≤10 ms overhead | Performance benchmark comparing authed vs unauthenticated requests | Design §Testing Strategy; §Request Flow with Authentication | **No task capturing measurement** | Add validation within performance benchmarks to record auth overhead |
+| OBJ-1 | Provide REST endpoints for cipher operations | Manual `curl` / integration tests for each route | §System Architecture Overview; §Routing & Request Lifecycle | Phase 2 core routes; Phase 3 advanced endpoints | Covered |
+| OBJ-2 | Preserve shift behavior across full range | Unit tests over shifts 0–25 | §Cipher Logic Module | Phase 2 core utilities | Covered |
+| OBJ-3 | Enforce authenticated access with Postgres | Seed token then call `/encrypt` (401→200) | §Request Flow with Authentication; §Authentication & Postgres Integration | Phase 4 auth middleware + seed tasks | Covered |
+| OBJ-4 | Produce deployable build artifacts & docs | Run `bun run build`; launch `dist/server.js` via README | §Build & Deployment Preparation; §Testing Strategy (manual playbook) | Phase 1 build script task; Phase 2 README doc; Phase 5 CI/build tasks | Covered |
+| CC-ENC-001 | `/encrypt` accepts `{text, shift}` | Integration test + `curl` | §Routing & Request Lifecycle | Phase 2 `/encrypt` task | Covered |
+| CC-ENC-002 | Reject invalid shift | Negative integration tests | §Routing & Request Lifecycle | Phase 2 `/encrypt` task | Covered |
+| CC-ENC-003 | Preserve case & punctuation | Utility unit tests + integration | §Cipher Logic Module | Phase 2 utilities task | Covered |
+| CC-DEC-001 | `/decrypt` endpoint | Integration test + manual `curl` | §Routing & Request Lifecycle | Phase 2 `/decrypt` task | Covered |
+| CC-DEC-002 | Round-trip matches plaintext | Utility unit tests | §Cipher Logic Module | Phase 2 utilities task | Covered |
+| CC-DEC-003 | Reject invalid shifts | Integration tests expecting 400 | §Routing & Request Lifecycle | Phase 2 `/decrypt` task | Covered |
+| CC-ENCDEF-001 | `/encode` defaults to 3 | Integration/manual test | §Cipher Logic Module | Phase 2 `/encode` task | Covered |
+| CC-ENCDEF-002 | `/encode` allows override | Integration/manual test | §Cipher Logic Module | Phase 2 `/encode` task | Covered |
+| CC-ROT13-001 | `/rot13` uses shift 13 | Integration test | §Cipher Logic Module | Phase 2 `/rot13` task | Covered |
+| CC-ROT13-002 | Response key `rot13` | Integration test | §Cipher Logic Module | Phase 2 `/rot13` task | Covered |
+| CC-BRUTE-001 | `/bruteforce` accepts `{text}` | Integration/manual test | §Cipher Logic Module | Phase 3 `/bruteforce` task | Covered |
+| CC-BRUTE-002 | Return keys `"0"`–`"25"` | Unit test verifying map length | §Cipher Logic Module | Phase 3 `/bruteforce` task | Covered |
+| CC-BRUTE-003 | Include original text at shift 0 | Integration/manual test | §Cipher Logic Module | Phase 3 `/bruteforce` task | Covered |
+| CC-AUTO-001 | `/auto-decrypt` endpoint | Integration test | §Cipher Logic Module | Phase 3 `autoDecrypt` task | Covered |
+| CC-AUTO-002 | Frequency analysis result | Unit test with known ciphertext | §Cipher Logic Module | Phase 3 `autoDecrypt` task | Covered |
+| CC-AUTO-003 | Candidates array on uncertainty | Integration test verifying field | §Cipher Logic Module | Phase 3 `autoDecrypt` task | Covered |
+| CC-HEALTH-001 | `/health` returns `{status:"ok"}` | `curl /health` | §System Architecture Overview; §Logging & Observability | Phase 1 health route task | Covered |
+| CC-HEALTH-002 | `/health` <50 ms | Benchmark log under latency threshold | §Testing Strategy | Phase 3 performance benchmark | Covered |
+| CC-INFO-001 | `/info` returns metadata | Integration/manual test | §API Documentation Strategy | Phase 3 `/info` task | Covered |
+| CC-INFO-002 | Version sourced from package metadata | Unit test referencing `package.json` | §API Documentation Strategy | Phase 3 `/info` task | Covered |
+| CC-AUTH-001 | Require auth header | Manual `curl` 401/200 | §Request Flow with Authentication | Phase 4 auth middleware | Covered |
+| CC-AUTH-002 | Validate token via Postgres table | Integration/unit tests hitting DB | §Authentication & Postgres Integration | Phase 4 migrations + repository | Covered |
+| CC-AUTH-003 | Local seed script | Run `bun run seed:local` | §Authentication & Postgres Integration | Phase 4 seed script task | Covered |
+| FR-001 | Core cipher utilities | Unit tests + route usage | §Cipher Logic Module | Phase 2 utilities task | Covered |
+| FR-002 | Route modules per endpoint | Integration tests; repo structure | §Routing & Request Lifecycle | Phases 2 & 3 route tasks | Covered |
+| FR-003 | Shared validation middleware | Integration tests for error responses | §Routing & Request Lifecycle | Phase 2 routes; Phase 5 error handler | Covered |
+| FR-004 | Structured logging | Inspect JSON logs during `curl` | §Logging & Observability | Phase 1 logging task | Covered |
+| FR-005 | Bun scripts for workflows | Run `bun run dev/test/build/seed:local` | §Build & Deployment Preparation | Phase 1 build task; Phase 4 seed; Phase 5 CI | Covered |
+| FR-006 | Auth middleware protecting routes | Manual/integration tests with tokens | §Request Flow with Authentication | Phase 4 auth task | Covered |
+| FR-007 | Build outputs documented & runnable | `bun run build` + README instructions | §Build & Deployment Preparation; §Testing Strategy | Phase 1 build task; Phase 2 README; Phase 5 CI/manual playbook | Covered |
+| TR-001 | Strict TypeScript | Compilation fails on implicit any | §Implementation Phase 1 | Phase 1 setup task | Covered |
+| TR-002 | Bundle via `bun build` | Build artifacts present in `dist/` | §Build & Deployment Preparation | Phase 1 build task; Phase 5 CI | Covered |
+| TR-003 | Configurable port | Start server with default & custom PORT | §Configuration & Environment Management | Phase 1 setup & structure tasks | Covered |
+| TR-004 | Automated tests & ≥90% coverage | Observe coverage report | §Testing Strategy | Phase 2 utilities; Ongoing quality gate | Covered |
+| TR-005 | Provision local Postgres | Docker compose start & connection | §Authentication & Postgres Integration | Phase 1 provisioning task | Covered |
+| TR-006 | DB migrations & seed tooling | Run migrate/seed scripts | §Authentication & Postgres Integration | Phase 4 migrations, seed, CI tasks | Covered |
+| TR-007 | Document env variables | README/.env instructions | §Configuration & Environment Management; §API Documentation Strategy | Phase 1 structure; Phase 2 documentation | Covered |
+| NFR-001 | Cipher endpoints <100 ms for 1 kB payload | Benchmark suite metrics | §Testing Strategy; §Implementation Phase 3 | Phase 3 benchmark task; Ongoing gate | Covered |
+| NFR-002 | Handle ≥50 concurrent requests | Benchmark concurrency metrics | §Testing Strategy | Phase 3 benchmark task; Ongoing gate | Covered |
+| NFR-003 | Error responses include `code`, `message` | Manual 400 request | §Routing & Request Lifecycle; §Logging & Observability | Phase 5 error handler | Covered |
+| NFR-004 | Auth overhead ≤10 ms | Benchmark comparing authed vs unauth | §Testing Strategy; §Implementation Phase 4 | Phase 4 auth overhead task; Ongoing gate | Covered |
+
+## Reverse Traceability (Design / Tasks → Requirements)
+| Artifact Reference | Description | Linked Requirements |
+| --- | --- | --- |
+| Design §System Architecture Overview | Overall architecture diagram | OBJ-1, OBJ-2, OBJ-3, CC-HEALTH-001 |
+| Design §Request Flow with Authentication | Sequence diagram for auth flow | OBJ-3, CC-AUTH-001/2/3, FR-006, NFR-004 |
+| Design §Configuration & Environment Management | Config strategy + PORT override | TR-003, TR-007, FR-002 |
+| Design §Build & Deployment Preparation | Build script + documentation guidance | OBJ-4, FR-005, FR-007, TR-002 |
+| Design §Testing Strategy | Testing coverage & benchmarks | TR-004, NFR-001/2/4, CC-HEALTH-002, CC-AUTH-001/2/3 |
+| Phase 1 – Set up Bun project | Strict TypeScript & PORT override | TR-001, TR-003 |
+| Phase 1 – Establish structure & config | Module layout, env docs | FR-002, TR-007 |
+| Phase 1 – Provision Postgres | Docker & env templates | TR-005, TR-006 |
+| Phase 1 – Health route & logging | `/health`, logs | CC-HEALTH-001, FR-004 |
+| Phase 1 – Configure build script | Build artifacts & docs | OBJ-4, FR-005, FR-007, TR-002 |
+| Phase 2 – Core utilities | Cipher logic tests | OBJ-2, FR-001, CC-ENC-003, CC-DEC-002 |
+| Phase 2 – `/encrypt` & `/decrypt` routes | Route validation | CC-ENC-001/2, CC-DEC-001/3, FR-003 |
+| Phase 2 – `/encode` & `/rot13` | Quick encode helpers | CC-ENCDEF-001/2, CC-ROT13-001/2 |
+| Phase 2 – README documentation | Usage + env variables | OBJ-4, TR-007, FR-007 |
+| Phase 3 – `/bruteforce` endpoint | Brute force support | CC-BRUTE-001/2/3 |
+| Phase 3 – `autoDecrypt` endpoint | Auto decrypt heuristics | CC-AUTO-001/2/3 |
+| Phase 3 – `/info` metadata | Service metadata | CC-INFO-001/2 |
+| Phase 3 – Performance benchmark suite | Latency & concurrency checks | CC-HEALTH-002, NFR-001, NFR-002 |
+| Phase 4 – `api_keys` migrations | Auth storage | CC-AUTH-002, TR-006 |
+| Phase 4 – Postgres connector | DB access layer | TR-005, TR-006 |
+| Phase 4 – Bearer auth middleware | Request protection | CC-AUTH-001, FR-006, NFR-004 |
+| Phase 4 – `seed:local` script | Credential seeding | CC-AUTH-003, FR-005 |
+| Phase 4 – Auth overhead measurement | Performance validation | NFR-004 |
+| Phase 5 – Error handler | Structured error responses | NFR-003, FR-003 |
+| Phase 5 – OpenAPI & docs | Contract sharing | OBJ-1, CC-INFO-001, TR-007 |
+| Phase 5 – CI scripts | Automated quality checks | FR-005, FR-007, TR-002, TR-004, TR-006 |
+| Phase 5 – Manual validation playbook | End-user workflow verification | OBJ-4, NFR-001, FR-007 |
+| Ongoing – Coverage gate | Maintain ≥90% coverage | TR-004 |
+| Ongoing – Performance budgets | Ensure latency & auth overhead targets | NFR-001, NFR-002, NFR-004 |
+
+All requirements trace forward to concrete design decisions and actionable tasks, and every implementation activity traces back to testable requirements, ensuring end-user outcomes remain verifiable.
