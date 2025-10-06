@@ -90,10 +90,10 @@ PORT=4000 bun run dev
 | POST   | /decrypt      | Decrypt text with a given shift                | ✅ Implemented |
 | POST   | /encode       | Quick encrypt with default shift = 3           | ✅ Implemented |
 | POST   | /rot13        | Apply ROT13 encoding (shift = 13)              | ✅ Implemented |
-| POST   | /bruteforce   | Show all possible shifts (0–25) for given text | 🚧 Coming Soon |
-| POST   | /auto-decrypt | Attempt to auto-detect most likely plaintext   | 🚧 Coming Soon |
+| POST   | /bruteforce   | Show all possible shifts (0–25) for given text | ✅ Implemented |
+| POST   | /auto-decrypt | Attempt to auto-detect most likely plaintext   | ✅ Implemented |
 | GET    | /health       | Health check endpoint                          | ✅ Implemented |
-| GET    | /info         | API metadata and available endpoints           | 🚧 Coming Soon |
+| GET    | /info         | API metadata and available endpoints           | ✅ Implemented |
 
 ---
 
@@ -218,6 +218,105 @@ curl -X POST http://localhost:3000/rot13 \
   -d '{"text": "Uryyb, Jbeyq!"}'
 ```
 
+### Bruteforce (/bruteforce)
+
+Show all possible decryptions (shifts 0-25) for given ciphertext.
+
+**Request:**
+
+```json
+{ "text": "Khoor, Zruog!" }
+```
+
+**Response:**
+
+```json
+{
+  "possibilities": {
+    "0": "Khoor, Zruog!",
+    "1": "Jgnnq, Yqtnf!",
+    "2": "Ifmmp, Xpsme!",
+    "3": "Hello, World!",
+    ...
+    "25": "Lipps, Asvph!"
+  }
+}
+```
+
+**curl Example:**
+
+```bash
+curl -X POST http://localhost:3000/bruteforce \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Khoor, Zruog!"}'
+```
+
+### Auto-Decrypt (/auto-decrypt)
+
+Automatically detect the most likely plaintext using frequency analysis.
+
+**Request:**
+
+```json
+{ "text": "Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj" }
+```
+
+**Response:**
+
+```json
+{
+  "decrypted": "The quick brown fox jumps over the lazy dog",
+  "shift": 3
+}
+```
+
+For ambiguous input, includes `candidates` array:
+
+```json
+{
+  "decrypted": "most likely text",
+  "shift": 5,
+  "candidates": [
+    { "shift": 5, "text": "most likely text", "score": 8.5 },
+    { "shift": 13, "text": "alternative text", "score": 7.2 },
+    { "shift": 7, "text": "another option", "score": 6.8 }
+  ]
+}
+```
+
+**curl Example:**
+
+```bash
+curl -X POST http://localhost:3000/auto-decrypt \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj"}'
+```
+
+### Info (/info)
+
+Get API metadata and list of available endpoints.
+
+**Response:**
+
+```json
+{
+  "name": "caesar-cipher-api",
+  "version": "1.0.0",
+  "description": "Caesar Cipher API built with Bun and Hono",
+  "endpoints": [
+    { "method": "GET", "path": "/health", "description": "Health check endpoint" },
+    { "method": "GET", "path": "/info", "description": "API metadata and available endpoints" },
+    ...
+  ]
+}
+```
+
+**curl Example:**
+
+```bash
+curl http://localhost:3000/info
+```
+
 ### Health (/health)
 
 Check if the API is running and healthy.
@@ -247,9 +346,9 @@ api/
 │   │   ├── encode.ts        # /encode (default shift=3) ✅
 │   │   ├── rot13.ts         # /rot13 (fixed shift=13) ✅
 │   │   ├── health.ts        # /health endpoint ✅
-│   │   ├── bruteforce.ts    # /bruteforce endpoint 🚧
-│   │   ├── autoDecrypt.ts   # /auto-decrypt endpoint 🚧
-│   │   └── info.ts          # /info endpoint 🚧
+│   │   ├── bruteforce.ts    # /bruteforce endpoint ✅
+│   │   ├── autoDecrypt.ts   # /auto-decrypt endpoint ✅
+│   │   └── info.ts          # /info endpoint ✅
 │   │
 │   ├── middleware/
 │   │   └── logging.ts       # Request logging middleware ✅

@@ -9,7 +9,8 @@
     "start": "bun run dist/server.js",
     "test": "bun test",
     "migrate": "bun run db/migrate.ts",
-    "seed:local": "bun run db/seed.ts"
+    "seed:local": "bun run db/seed.ts",
+    "benchmark": "bun run scripts/benchmark.ts"
   },
   "dependencies": {
     "hono": "^4.0.0",
