@@ -1,0 +1,21 @@
+{
+  "name": "caesar-cipher-api",
+  "version": "1.0.0",
+  "description": "Caesar Cipher API built with Bun and Hono",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/server.ts",
+    "build": "bun build src/server.ts --outdir dist --target bun",
+    "start": "bun run dist/server.js",
+    "test": "bun test",
+    "migrate": "bun run db/migrate.ts",
+    "seed:local": "bun run db/seed.ts"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.0.0"
+  }
+}

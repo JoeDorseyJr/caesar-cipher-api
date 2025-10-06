@@ -10,14 +10,50 @@ Built with Bun and Hono.
 ### Prerequisites
 
 * Bun installed (v1.0 or later recommended)
+* PostgreSQL database (for authentication features)
+* Docker and Docker Compose (optional, for running Postgres locally)
 
-#### Install dependencies
+### Environment Setup
+
+#### Option 1: Using Docker Compose (Recommended)
+
+Start the PostgreSQL database:
 
 ```shell
+docker compose up db
+```
+
+This will start PostgreSQL on `localhost:5432` with the credentials specified in `docker-compose.yml`.
+
+#### Option 2: Using existing PostgreSQL
+
+If you have PostgreSQL installed locally or remotely, update the `DATABASE_URL` in your `.env.local` file.
+
+#### Configure Environment Variables
+
+Copy the `.env.example` file to `.env.local` and configure your environment variables:
+
+```shell
+cp api/.env.example api/.env.local
+```
+
+Required environment variables:
+
+- **PORT**: HTTP server port (default: 3000)
+- **DATABASE_URL**: PostgreSQL connection string (e.g., `postgresql://postgres:postgres@localhost:5432/caesar_cipher`)
+- **JWT_SECRET**: Secret key for JWT authentication (minimum 10 characters, change in production!)
+- **NODE_ENV**: Application environment (`development`, `production`, or `test`)
+
+See `api/.env.example` for complete documentation and default values.
+
+### Install dependencies
+
+```shell
+cd api
 bun install
 ```
 
-#### Run the server
+### Run the server
 
 ```shell
 bun run dev
