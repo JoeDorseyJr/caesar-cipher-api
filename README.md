@@ -55,27 +55,45 @@ bun install
 
 ### Run the server
 
+**Development mode (with hot reload):**
+
 ```shell
 bun run dev
+```
+
+**Production build:**
+
+```shell
+# Build the application
+bun run build
+
+# Run the production build
+bun run start
 ```
 
 Server will start at:
 [http://localhost:3000](http://localhost:3000)
 
+Override the port if needed:
+
+```shell
+PORT=4000 bun run dev
+```
+
 ---
 
 ## Endpoints
 
-| Method | Endpoint      | Description                                    |
-| ------ | ------------- | ---------------------------------------------- |
-| POST   | /encrypt      | Encrypt text with a given shift                |
-| POST   | /decrypt      | Decrypt text with a given shift                |
-| POST   | /encode       | Quick encrypt with default shift = 3           |
-| POST   | /rot13        | Apply ROT13 encoding (shift = 13)              |
-| POST   | /bruteforce   | Show all possible shifts (0–25) for given text |
-| POST   | /auto-decrypt | Attempt to auto-detect most likely plaintext   |
-| GET    | /health       | Health check endpoint                          |
-| GET    | /info         | API metadata and available endpoints           |
+| Method | Endpoint      | Description                                    | Status        |
+| ------ | ------------- | ---------------------------------------------- | ------------- |
+| POST   | /encrypt      | Encrypt text with a given shift                | ✅ Implemented |
+| POST   | /decrypt      | Decrypt text with a given shift                | ✅ Implemented |
+| POST   | /encode       | Quick encrypt with default shift = 3           | ✅ Implemented |
+| POST   | /rot13        | Apply ROT13 encoding (shift = 13)              | ✅ Implemented |
+| POST   | /bruteforce   | Show all possible shifts (0–25) for given text | 🚧 Coming Soon |
+| POST   | /auto-decrypt | Attempt to auto-detect most likely plaintext   | 🚧 Coming Soon |
+| GET    | /health       | Health check endpoint                          | ✅ Implemented |
+| GET    | /info         | API metadata and available endpoints           | 🚧 Coming Soon |
 
 ---
 
@@ -83,123 +101,137 @@ Server will start at:
 
 ### Encrypt (/encrypt)
 
-Request:
+Encrypt text with a specified shift value (0-25).
+
+**Request:**
 
 ```json
-{ "text": "hello world", "shift": 3 }
+{ "text": "Hello, World!", "shift": 3 }
 ```
 
-Response:
+**Response:**
 
 ```json
-{ "encrypted": "khoor zruog", "shift": 3 }
+{ "encrypted": "Khoor, Zruog!", "shift": 3 }
+```
+
+**curl Example:**
+
+```bash
+curl -X POST http://localhost:3000/encrypt \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello, World!", "shift": 3}'
 ```
 
 ### Decrypt (/decrypt)
 
-Request:
+Decrypt text with a specified shift value (0-25).
+
+**Request:**
 
 ```json
-{ "text": "khoor zruog", "shift": 3 }
+{ "text": "Khoor, Zruog!", "shift": 3 }
 ```
 
-Response:
+**Response:**
 
 ```json
-{ "decrypted": "hello world", "shift": 3 }
+{ "decrypted": "Hello, World!", "shift": 3 }
+```
+
+**curl Example:**
+
+```bash
+curl -X POST http://localhost:3000/decrypt \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Khoor, Zruog!", "shift": 3}'
 ```
 
 ### Encode (/encode, default shift=3)
 
-Request:
+Quick encryption with default shift of 3. Optionally accepts custom shift value.
+
+**Request (default shift):**
 
 ```json
-{ "text": "attack at dawn" }
+{ "text": "Attack at dawn" }
 ```
 
-Response:
+**Response:**
 
 ```json
-{ "encrypted": "dwwdfn dw gdzq", "shift": 3 }
+{ "encoded": "Dwwdfn dw gdzq", "shift": 3 }
+```
+
+**Request (custom shift):**
+
+```json
+{ "text": "Attack at dawn", "shift": 5 }
+```
+
+**Response:**
+
+```json
+{ "encoded": "Fyyfhp fy ifbs", "shift": 5 }
+```
+
+**curl Example:**
+
+```bash
+# Using default shift (3)
+curl -X POST http://localhost:3000/encode \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Attack at dawn"}'
+
+# Using custom shift
+curl -X POST http://localhost:3000/encode \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Attack at dawn", "shift": 5}'
 ```
 
 ### ROT13 (/rot13)
 
-Request:
+Apply ROT13 encoding (fixed shift of 13). ROT13 is symmetric - applying it twice returns the original text.
+
+**Request:**
 
 ```json
-{ "text": "hello world" }
+{ "text": "Hello, World!" }
 ```
 
-Response:
+**Response:**
 
 ```json
-{ "rot13": "uryyb jbeyq" }
+{ "encoded": "Uryyb, Jbeyq!", "shift": 13 }
 ```
 
-### Bruteforce (/bruteforce)
+**curl Example:**
 
-Request:
+```bash
+curl -X POST http://localhost:3000/rot13 \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello, World!"}'
 
-```json
-{ "text": "khoor" }
-```
-
-Response (partial):
-
-```json
-{
-  "possibilities": {
-    "1": "jgnnq",
-    "2": "ifmmp",
-    "3": "hello",
-    "4": "gdkkn",
-    "...": "..."
-  }
-}
-```
-
-### Auto-Decrypt (/auto-decrypt)
-
-Request:
-
-```json
-{ "text": "khoor zruog" }
-```
-
-Response:
-
-```json
-{ "decrypted": "hello world", "shift": 3 }
+# Verify symmetry - apply ROT13 twice
+curl -X POST http://localhost:3000/rot13 \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Uryyb, Jbeyq!"}'
 ```
 
 ### Health (/health)
 
-Response:
+Check if the API is running and healthy.
+
+**Response:**
 
 ```json
 { "status": "ok" }
 ```
 
-### Info (/info)
+**curl Example:**
 
-Response:
-
-```json
-{
-  "name": "Caesar Cipher API",
-  "version": "1.0.0",
-  "endpoints": [
-    "/encrypt",
-    "/decrypt",
-    "/encode",
-    "/rot13",
-    "/bruteforce",
-    "/auto-decrypt",
-    "/health",
-    "/info"
-  ]
-}
+```bash
+curl http://localhost:3000/health
 ```
 
 ---
@@ -210,25 +242,44 @@ Response:
 api/
 ├── src/
 │   ├── routes/
-│   │   ├── encrypt.ts       # /encrypt endpoint
-│   │   ├── decrypt.ts       # /decrypt endpoint
-│   │   ├── encode.ts        # /encode (default shift=3)
-│   │   ├── rot13.ts         # /rot13 (fixed shift=13)
-│   │   ├── bruteforce.ts    # /bruteforce endpoint
-│   │   ├── autoDecrypt.ts   # /auto-decrypt endpoint
-│   │   ├── health.ts        # /health endpoint
-│   │   └── info.ts          # /info endpoint
+│   │   ├── encrypt.ts       # /encrypt endpoint ✅
+│   │   ├── decrypt.ts       # /decrypt endpoint ✅
+│   │   ├── encode.ts        # /encode (default shift=3) ✅
+│   │   ├── rot13.ts         # /rot13 (fixed shift=13) ✅
+│   │   ├── health.ts        # /health endpoint ✅
+│   │   ├── bruteforce.ts    # /bruteforce endpoint 🚧
+│   │   ├── autoDecrypt.ts   # /auto-decrypt endpoint 🚧
+│   │   └── info.ts          # /info endpoint 🚧
+│   │
+│   ├── middleware/
+│   │   └── logging.ts       # Request logging middleware ✅
 │   │
 │   ├── utils/
-│   │   └── caesar.ts        # Cipher logic: shift, encrypt, decrypt, bruteforce
+│   │   ├── caesar.ts        # Cipher logic ✅
+│   │   └── logger.ts        # Structured logging utility ✅
 │   │
-│   ├── app.ts               # Hono app setup and route mounting
-│   └── server.ts            # Server bootstrap (start server on port)
+│   ├── config.ts            # Environment configuration ✅
+│   ├── app.ts               # Hono app setup and route mounting ✅
+│   └── server.ts            # Server bootstrap ✅
 │
+├── db/
+│   ├── migrations/          # Database migrations 🚧
+│   ├── migrate.ts           # Migration runner ✅
+│   └── seed.ts              # Database seeding script ✅
+│
+├── dist/                    # Production build output
 ├── package.json
+├── tsconfig.json
 ├── bun.lockb
-└── README.md
+└── .env.local               # Local environment variables (not tracked)
 ```
+
+**Legend:**
+
+* ✅ Implemented
+* 🚧 Coming in future phases
+
+---
 
 ---
 

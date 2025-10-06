@@ -34,7 +34,8 @@ bun run dist/server.js             # Run production build
 
 ### Database Operations
 ```bash
-docker compose up db               # Start local Postgres
+docker compose up db               # Start local Postgres (optional)
+# Note: Local postgres database "caesar_cipher" exists for testing without Docker
 bun run migrate                    # Run migrations (TR-006)
 bun run seed:local                 # Seed test credentials (CC-AUTH-003)
 ```
@@ -79,8 +80,10 @@ Use Conventional Commits (`feat:`, `fix:`, `chore:`) ≤72 characters. Include c
 ### Why This Matters
 Each requirement has explicit validation criteria (e.g., "`bun test` integration spec", "manual `curl` request"). When implementing:
 - Reference requirement IDs (e.g., CC-ENC-001) in commits
-- Follow validation steps from tasks to verify completion
+- **Follow ALL validation steps from tasks** - passing tests alone is NOT sufficient; must also verify manual curl requests work
+- **Verify server processes are running correctly** before testing endpoints (use `lsof -i :PORT` to check)
 - Update traceability matrix if requirements change
+- **Never assume completion** - always run the complete validation workflow
 
 ## Key Integration Points
 
@@ -108,6 +111,8 @@ Store secrets in `.env.local` (not tracked). Reference with safe defaults in `se
 - ❌ Adding cipher logic to route handlers (keep pure in `utils/`)
 - ❌ Hardcoding version in `/info` (source from `package.json` per CC-INFO-002)
 - ❌ Generic test descriptions ("it should work") – reference specific requirements
+- ❌ **NEVER mark tasks complete without fully validating ALL acceptance criteria** (run manual `curl` tests, check server processes, verify end-to-end workflow)
+- ❌ **NEVER make assumptions** - always verify actual behavior before claiming completion
 - ❌ Skipping validation steps in tasks before marking complete
 - ❌ Breaking auth overhead budget (measure with benchmarks)
 

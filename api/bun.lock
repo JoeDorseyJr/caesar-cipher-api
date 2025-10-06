@@ -4,6 +4,7 @@
     "": {
       "name": "caesar-cipher-api",
       "dependencies": {
+        "@hono/zod-validator": "^0.2.0",
         "hono": "^4.0.0",
         "zod": "^3.22.4",
       },
@@ -13,6 +14,8 @@
     },
   },
   "packages": {
+    "@hono/zod-validator": ["@hono/zod-validator@0.2.2", "", { "peerDependencies": { "hono": ">=3.9.0", "zod": "^3.19.1" } }, "sha512-dSDxaPV70Py8wuIU2QNpoVEIOSzSXZ/6/B/h4xA7eOMz7+AarKTSGV8E6QwrdcCbBLkpqfJ4Q2TmBO0eP1tCBQ=="],
+
     "@types/bun": ["@types/bun@1.2.23", "", { "dependencies": { "bun-types": "1.2.23" } }, "sha512-le8ueOY5b6VKYf19xT3McVbXqLqmxzPXHsQT/q9JHgikJ2X22wyTW3g3ohz2ZMnp7dod6aduIiq8A14Xyimm0A=="],
 
     "@types/node": ["@types/node@24.6.2", "", { "dependencies": { "undici-types": "~7.13.0" } }, "sha512-d2L25Y4j+W3ZlNAeMKcy7yDsK425ibcAOO2t7aPTz6gNMH0z2GThtwENCDc0d/Pw9wgyRqE5Px1wkV7naz8ang=="],
