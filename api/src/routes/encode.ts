@@ -1,7 +1,7 @@
-import { Hono } from 'hono';
-import { zValidator } from '@hono/zod-validator';
-import { z } from 'zod';
-import { encrypt } from '../utils/caesar';
+import { Hono } from "hono";
+import { z } from "zod";
+import { encrypt } from "../utils/caesar";
+import { validator } from "../utils/validation";
 
 const encode = new Hono();
 
@@ -12,10 +12,10 @@ const encodeSchema = z.object({
 });
 
 // POST /encode - encrypt with default shift of 3
-encode.post('/', zValidator('json', encodeSchema), (c) => {
-  const { text, shift } = c.req.valid('json');
+encode.post("/", validator("json", encodeSchema), (c) => {
+  const { text, shift } = c.req.valid("json");
   const encoded = encrypt(text, shift);
-  
+
   return c.json({
     encoded,
     shift,

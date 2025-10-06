@@ -27,10 +27,10 @@
 - [x] **Measure authenticated request overhead** (Est: 3h) — Req: NFR-004; Design Refs: §Testing Strategy, §Request Flow with Authentication. Validation: extend benchmark suite to compare authed vs unauthenticated latency, documenting results ≤10 ms overhead in CI artifacts.
 
 ## Phase 5 – Hardening, Docs & Tooling (Design §Implementation Phases → Phase 5)
-- [ ] **Add structured error handler with `{ code, message }`** (Est: 3h) — Req: NFR-003, FR-003; Design Refs: §Routing & Request Lifecycle, §Logging & Observability. Validation: failing validation returns standardized JSON verified via tests and manual `curl`.
-- [ ] **Generate OpenAPI spec and doc tooling** (Est: 4h) — Req: Objectives, CC-INFO-001, TR-007; Design Refs: §API Documentation Strategy. Validation: run `bun run doc:check` and import spec into Postman so developers can execute sample encrypt call.
-- [ ] **Establish CI scripts for tests, migrations, linting, build, benchmarks** (Est: 4h) — Req: FR-005, FR-007, TR-002, TR-004, TR-006; Design Refs: §Build & Deployment Preparation, §Testing Strategy. Validation: CI pipeline (or local runner) executes `bun test`, `bun run migrate`, `bun run lint`, `bun run build`, and benchmark script without manual intervention.
-- [ ] **Finalize manual validation playbook** (Est: 2h) — Req: Objectives, NFR-001, FR-007; Design Refs: §Testing Strategy. Validation: checklist includes `curl` commands, benchmark triggers, and `bun build` verification; peer runs through to confirm end-user workflow clarity.
+- [x] **Add structured error handler with `{ code, message }`** (Est: 3h) — Req: NFR-003, FR-003; Design Refs: §Routing & Request Lifecycle, §Logging & Observability. Validation: failing validation returns standardized JSON verified via tests and manual `curl`.
+- [x] **Generate OpenAPI spec and doc tooling** (Est: 4h) — Req: Objectives, CC-INFO-001, TR-007; Design Refs: §API Documentation Strategy. Validation: run `bun run doc:check` and import spec into Postman so developers can execute sample encrypt call.
+- [x] **Establish CI scripts for tests, migrations, linting, build, benchmarks** (Est: 4h) — Req: FR-005, FR-007, TR-002, TR-004, TR-006; Design Refs: §Build & Deployment Preparation, §Testing Strategy. Validation: CI pipeline (or local runner) executes `bun test`, `bun run migrate`, `bun run lint`, `bun run build`, and benchmark script without manual intervention.
+- [x] **Finalize manual validation playbook** (Est: 2h) — Req: Objectives, NFR-001, FR-007; Design Refs: §Testing Strategy. Validation: checklist includes `curl` commands, benchmark triggers, and `bun build` verification; peer runs through to confirm end-user workflow clarity.
 
 ## Ongoing Quality Gates
 - [ ] **Maintain ≥90% coverage on cipher utilities** (Est: ongoing 1h per review) — Req: TR-004; Design Refs: §Testing Strategy. Validation: coverage reports attached to PRs demonstrating threshold met, showing end users can trust logic.

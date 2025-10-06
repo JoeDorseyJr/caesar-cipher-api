@@ -382,6 +382,14 @@ api/
 
 ---
 
+## Documentation
+
+For detailed documentation, see the `docs/` directory:
+
+- **[Validation Playbook](docs/VALIDATION_PLAYBOOK.md)** - Step-by-step manual validation procedures
+- **[OpenAPI Specification](api/openapi.json)** - API specification for Postman/Swagger
+- **[Development Specs](development/caesar-cipher-api/)** - Requirements, design, tasks, and traceability
+
 ## Notes
 
 * `shift` must be an integer between 0 and 25.
